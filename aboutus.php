@@ -36,8 +36,7 @@
     </div>
 
     <!--There is where the body content will go-->
-    <div class="container-fluid" id="aboutus-content">
-
+    <div id="aboutus-content">
         <div class="container">
             <div class="row">
                 <p class="h1 text-center">
