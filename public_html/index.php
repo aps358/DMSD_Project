@@ -1,26 +1,13 @@
 <?php
+// Defining variables
+$login_type = $username = $password = "";
+$utype = $upass = "";
+
 include_once 'conf/conf.php';
 global $db;
 global $path;
 
-// Defining variables
-$login_type = $username = $password = "";
-
 // Checking for a POST request
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $login_type = test_input($_POST["login_type"]);
-    $username = test_input($_POST["username"]);
-    $password = test_input($_POST["password"]);
-}
-
-function test_input($data) {
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data);
-    return $data;
-}
-
-
 if (isset($_POST['login'])) {
 
     if (mysqli_connect_errno()) {
@@ -28,56 +15,43 @@ if (isset($_POST['login'])) {
     }
 
     if ($db) {
-
+        $type = htmlspecialchars($_POST['login_type']);
+        $type = mysqli_real_escape_string($db, $type);
         $user = htmlspecialchars($_POST['username']);
         $user = mysqli_real_escape_string($db, $user);
         $pass = htmlspecialchars($_POST['password']);
         $pass = mysqli_real_escape_string($db, $pass);
+
         if ($user == "" or $pass == "") {
             $msg = "Blank Data Not Allowed";
         } else {
-            $q = "call get_user('" . $user . "','" . $pass . "');";
-//            echo $q;
+            $q = "select * from login where type = '" . $type . "' and username ='" . $user . "'and password ='" . $pass . "';";
+            // echo $q;
             $retrieve = $db->query($q) or die(mysqli_error($db));
-            if (($retrieve)) {
+            if ($retrieve) {
                 while ($retrievedata = $retrieve->fetch_array()) {
-                    $chno = $retrievedata['emp_id'];
-                    $fname = $retrievedata['em_fname'];
-                    $lname = $retrievedata['em_lname'];
-                    $Roleid = $retrievedata['role_id'];
-                    $apass = $retrievedata['emp_pass'];
+                    $utype = $retrievedata['type'];
+                    $uname = $retrievedata['username'];
+                    $upass = $retrievedata['password'];
                 }
                 $retrieve->close();
                 $db->next_result();
-                if ($pass != $apass) {
+                if ($pass != $upass) {
                     $msg = "Wrong User Name / Password. Please Check";
                     echo "<script>alert('" . $msg . "')</script>";
                     session_start();
-                    $_SESSION['username_profile'] = '';
-                    $_SESSION['Roleid'] = '';
-                } else if ($Roleid == "" or $Roleid == 0) {
+                } elseif ($type == "customer") {
                     session_start();
-                    $_SESSION['Roleid'] = $Roleid;
-                    $_SESSION['username_profile'] = '';
-                    //$msg="You don't have permission to access this portal.Please Contact Administrator";
-                    header("Location: logoutmessage.php");
+                    global $path;
+                    header("Location: cust_welcome.php");
                 } else {
                     session_start();
                     global $path;
-                    $fuser = $fname . " " . $lname;
-                    $_SESSION['ChkNo'] = $chno;
-                    $_SESSION['username_profile'] = $fuser;
-                    $_SESSION['Roleid'] = $Roleid;
-                    header("Location: welcome.php");
+                    header("Location: emp_welcome.php");
                 }
-            } else {
-//                            echo 'in else';
-//				$msg="Wrong Login Or Password.Please Check";
             }
         }
     }
-} else {
-    // echo "in else";
 }
 
 ?>
@@ -130,7 +104,7 @@ if (isset($_POST['login'])) {
             <div class="col-md-12" id="index_jumbo">
                 <div class="login-form">
                     <form method="post" autocomplete="off">
-                    <h3 class="text-center">Log in</h3>
+                        <h3 class="text-center">Log in</h3>
                         <div class="form-group text-center">
                             <input type="radio" id="employee" name="login_type" value="employee" checked>
                             <label for="huey">Employee</label>
@@ -147,7 +121,7 @@ if (isset($_POST['login'])) {
                                    required="required">
                         </div>
                         <div class="form-group">
-                            <input type="submit" name="login"  value="Login" class="btn btn-primary btn-block">
+                            <input type="submit" name="login" value="Login" class="btn btn-primary btn-block">
                         </div>
                     </form>
 
