@@ -62,6 +62,15 @@
     overflow: auto;
 }
 
+.lb-lg{
+    font-size:140%;
+    text-align: right;
+}
+
+#emp_form{
+    width:50%;
+}
+
 canvas {
     display: block;
     vertical-align: bottom;
