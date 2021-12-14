@@ -2,7 +2,8 @@
 // Defining variables
 $login_type = $username = $password = "";
 $utype = $upass = "";
-
+session_start();
+$_SESSION['username'] =
 include_once 'conf/conf.php';
 global $db;
 global $path;
@@ -39,14 +40,15 @@ if (isset($_POST['login'])) {
                 if ($pass != $upass) {
                     $msg = "Wrong User Name / Password. Please Check";
                     echo "<script>alert('" . $msg . "')</script>";
-                    session_start();
                 } elseif ($type == "customer") {
                     session_start();
                     global $path;
+                    $_SESSION['username'] = $uname;
                     header("Location: cust_welcome.php");
                 } else {
                     session_start();
                     global $path;
+                    $_SESSION['username'] = $uname;
                     header("Location: emp_welcome.php");
                 }
             }
